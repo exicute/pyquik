@@ -2,6 +2,8 @@ import logging  # Выводим лог на консоль и в файл
 import sys  # Выход из точки входа
 from datetime import datetime  # Дата и время
 from QuikPy import QuikPy
+import pandas as pd
+import numpy as np
 
 
 #connecting 
@@ -28,6 +30,30 @@ def connectquik():
         sys.exit()  # Выходим, дальше не продолжаем
 
     return qp_provider
+
+
+def collectdatequik(df: pd.DataFrame) -> pd.DataFrame:
+    df = pd.json_normalize(df['data'])
+    
+    keyslist = []
+    for col in df.columns:
+        if col.split('.')[0] == 'datetime':
+            keyslist.append(col)
+
+    for col in keyslist:
+        df[col] = df[col].astype(str)
+
+    df['date'] = df['datetime.year']+'-' \
+        +df['datetime.month']+'-' \
+        +df['datetime.day']+' ' \
+        +df['datetime.hour']+':' \
+        +df['datetime.min']+':' \
+        +df['datetime.sec']
+    df['date'] = pd.to_datetime(df['date'])
+
+    df = df.drop(columns=keyslist)
+
+    return df
 
 
 #subscribe_to_candles
