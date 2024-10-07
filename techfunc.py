@@ -56,7 +56,27 @@ def collectdatequik(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-#subscribe_to_candles
+def getvar(df: pd.DataFrame) -> pd.DataFrame:
+    df['frameyield'] = (df.loc[:, 'open'] - df.loc[:, 'close'])/df.loc[:, 'open']
+    df['framevar'] = (df.loc[:, 'high'] - df.loc[:, 'low'])/df.loc[:, 'close']
+
+    return df
+
+
+def calcspread(assetval:float, rate:float, expirdate:str, dividend:float=0, futval:float=0, lotsize:float=10):
+    maturity = pd.to_datetime(expirdate)-pd.to_datetime('today').normalize()
+    maturity = int(maturity.days)
+
+    assetval = assetval*lotsize
+    dividend = dividend*lotsize
+
+    F0 = assetval*(1+rate*(maturity/365)-dividend/assetval)
+
+    if futval==None:
+        return F0
+    
+    else:
+        return (F0, futval-F0)
 
 
 
